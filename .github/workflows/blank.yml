@@ -1,0 +1,42 @@
+
+name: Build WIRD Android APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Extract project
+        run: |
+          mkdir source
+          unzip -q WIRD_source_with_translations.zip -d source
+          cd source
+          cp android/app/src/main/AndroidManifest.xml /tmp/manifest.xml
+          flutter create --platforms=android --org com.wird --project-name wird .
+          cp /tmp/manifest.xml android/app/src/main/AndroidManifest.xml
+
+      - name: Get dependencies
+        working-directory: source
+        run: flutter pub get
+
+      - name: Build APK
+        working-directory: source
+        run: flutter build apk --release
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: WIRD-APK
+          path: source/build/app/outputs/flutter-apk/app-release.apk
