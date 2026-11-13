@@ -23,20 +23,21 @@ jobs:
         run: |
           mkdir source
           unzip -q WIRD_source_with_translations.zip -d source
-          cd source
+          cd source/wird_app
           cp android/app/src/main/AndroidManifest.xml /tmp/manifest.xml
           flutter create --platforms=android --org com.wird --project-name wird .
           cp /tmp/manifest.xml android/app/src/main/AndroidManifest.xml
 
       - name: Get dependencies
-        working-directory: source
+        working-directory: source/wird_app
         run: flutter pub get
 
       - name: Build APK
-        working-directory: source
+        working-directory: source/wird_app
         run: flutter build apk --release
 
       - uses: actions/upload-artifact@v4
         with:
           name: WIRD-APK
-          path: source/build/app/outputs/flutter-apk/app-release.apk
+          path: source/wird_app/build/app/outputs/flutter-apk/app-release.apk
+concurrency: 
